@@ -1,0 +1,842 @@
+import React, { useState, useEffect } from 'react';
+
+// Data for kiteboarding locations and their monthly conditions
+const kiteboardingData = {
+  'January': [
+    {
+      name: 'Union Island, St. Vincent & The Grenadines',
+      region: 'Caribbean',
+      wind: '12-35 knots (highly consistent trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat to choppy, ideal for all levels.',
+      otherActivities: ['Snorkeling & Diving', 'Island hopping to Tobago Cays', 'Hiking', 'Sailing tours'],
+      kiteSchool: { name: 'Kiteboarding Union Island', url: 'https://www.kitesurfunionisland.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Union+Island+Kite'
+    },
+    {
+      name: 'Aruba',
+      region: 'Caribbean',
+      wind: '12-35 knots (highly consistent trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat, shallow waters (Baby Beach) to choppy/small waves (Boca Grandi), great for beginners and experienced riders.',
+      otherActivities: ['Snorkeling & Diving', 'Explore Arikok National Park', 'Visit Oranjestad', 'Relax on pristine beaches'],
+      kiteSchool: { name: 'Pro Kite School Aruba', url: 'https://www.unplug-kitesurf.com/destinations/aruba' }, // Link to a directory
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Aruba+Kite'
+    },
+    {
+      name: 'Sal, Cape Verde',
+      region: 'Africa',
+      wind: '12-35 knots (consistent, ideal for waves)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (20-25°C / 68-77°F)',
+      conditions: 'Good for waves, also flat water areas. Suitable for intermediate to advanced riders, Ponta Preta for world-class waves.',
+      otherActivities: ['Explore Santa Maria town', 'Visit the Salinas de Pedra de Lume (salt flats)', 'Scuba diving', 'Quad biking'],
+      kiteSchool: { name: 'Surf Activity Cape Verde', url: 'https://www.surfactivity.com/kitesurf-cape-verde' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Sal+Cape+Verde+Kite'
+    },
+    {
+      name: 'Kalpitiya, Sri Lanka',
+      region: 'Asia',
+      wind: 'Steady (15-25 knots)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Large flat-water lagoon, ideal for all levels, especially beginners and freestylers.',
+      otherActivities: ['Dolphin & Whale Watching', 'Wilpattu National Park Safari', 'Kayaking', 'Visit Dutch Fort & Church'],
+      kiteSchool: { name: 'De Silva Windresort', url: 'https://surfschool-srilanka.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kalpitiya+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Barbados',
+      region: 'Caribbean',
+      wind: 'Consistent (12-25 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Variety of conditions from flat water to waves. Good for all levels.',
+      otherActivities: ['Explore Harrison\'s Cave', 'Visit St. Nicholas Abbey', 'Snorkeling & Diving', 'Relax on beaches'],
+      kiteSchool: { name: 'Upwind Kitesurfing Lessons Barbados', url: 'https://upwindkitesurfschool.com/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Barbados+Kite'
+    },
+  ],
+  'February': [
+    {
+      name: 'Cabarete, Dominican Republic',
+      region: 'Caribbean',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (24-29°C / 75-84°F)',
+      conditions: 'Small waves/chop near shore, flat water further out. Good for all levels, very consistent wind.',
+      otherActivities: ['El Choco National Park exploration', 'Horseback riding', 'Paddleboarding & Snorkeling', 'Zip-lining & Waterfalls (e.g., 27 Waterfalls of Damajagua)'],
+      kiteSchool: { name: 'AGK Kite School', url: 'https://kiterr.com/kiteschools/agk-kite-school/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Cabarete+DR+Kite'
+    },
+    {
+      name: 'Boracay, Philippines',
+      region: 'Asia',
+      wind: 'Consistent (15-25 knots, NE monsoon)',
+      waterTemp: 'Warm (27-29°C / 81-84°F)',
+      airTemp: 'Warm (28-29°C / 82-84°F)',
+      conditions: 'Flat water, ideal for beginners and freestyle. Stunning white beaches.',
+      otherActivities: ['Island hopping', 'Snorkeling & Diving', 'Paddleboarding', 'Visit White Beach & Puka Shell Beach'],
+      kiteSchool: { name: 'Isla Kitesurfing', url: 'https://www.unplug-kitesurf.com/destinations/boracay' }, // Link to a directory
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Boracay+PH+Kite'
+    },
+    {
+      name: 'Cape Town, South Africa',
+      region: 'Africa',
+      wind: 'Strong (20-35 knots, "Cape Doctor")',
+      waterTemp: 'Cold (14-18°C / 57-64°F, wetsuit needed)',
+      airTemp: 'Warm (20-28°C / 68-82°F)',
+      conditions: 'Choppy to waves, strong winds. Suitable for intermediate to advanced kiters.',
+      otherActivities: ['Table Mountain Cableway', 'Robben Island Tour', 'Visit Boulders Beach (penguins)', 'Wine tasting in Stellenbosch/Franschhoek'],
+      kiteSchool: { name: 'Kitekahunas', url: 'https://www.kitekahunas.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Cape+Town+SA+Kite'
+    },
+    {
+      name: 'Dubai, UAE',
+      region: 'Middle East',
+      wind: 'Moderate (12-20 knots)',
+      waterTemp: 'Warm (20-24°C / 68-75°F)',
+      airTemp: 'Warm (16-25°C / 61-77°F)',
+      conditions: 'Flat water to light chop, ideal for freeride and learning. Warm weather.',
+      otherActivities: ['Visit Burj Khalifa', 'Explore Dubai Mall & Aquarium', 'Desert Safari', 'Explore Alserkal Avenue (art)'],
+      kiteSchool: { name: 'Kite Zone Dubai', url: 'https://www.kitezonedubai.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Dubai+Kite'
+    },
+    {
+      name: 'Vietnam (Mui Ne)',
+      region: 'Asia',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Consistent winds, flat water near shore, small waves further out. Good for all levels.',
+      otherActivities: ['Explore Fairy Stream', 'Visit Red Sand Dunes', 'Fishing village tour', 'Relax on beaches'],
+      kiteSchool: { name: 'Mui Ne Kitesurf School', url: 'https://www.muine.kitesurf.vn/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Mui+Ne+Vietnam+Kite'
+    },
+  ],
+  'March': [
+    {
+      name: 'Hurghada, Egypt',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (22-24°C / 72-75°F)',
+      airTemp: 'Warm (20-28°C / 68-82°F)',
+      conditions: 'Large shallow water lagoons, flat water, perfect for beginners and freestyle. Comfortable air temps.',
+      otherActivities: ['Snorkeling & Diving in Red Sea', 'Boat trips to Giftun Islands', 'Visit Hurghada Marina', 'Quad biking in the desert'],
+      kiteSchool: { name: 'Kite School Egypt', url: 'https://www.kiteschoolegypt.com/en' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Hurghada+Egypt+Kite'
+    },
+    {
+      name: 'Tarifa, Spain',
+      region: 'Europe',
+      wind: 'Strong (15-35 knots, Levante or Poniente)',
+      waterTemp: 'Cool (15-18°C / 59-64°F)',
+      airTemp: 'Mild (12-17°C / 54-63°F)',
+      conditions: 'Chop to large waves depending on wind direction. Suitable for intermediate to advanced riders due to strong, often gusty winds.',
+      otherActivities: ['Explore Guzman castle', 'Visit Roman city of Baelo Claudia', 'Horse riding', 'Whale & Dolphin watching'],
+      kiteSchool: { name: 'Addict Kite School Tarifa', url: 'https://www.addictkiteschool.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Tarifa+Spain+Kite'
+    },
+    {
+      name: 'Los Roques, Venezuela',
+      region: 'Caribbean',
+      wind: 'Consistent (18-28 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (28-31°C / 82-88°F)',
+      conditions: 'Flat water lagoons, perfect for freestyle and freeride. Stunning turquoise waters.',
+      otherActivities: ['Snorkeling & Scuba Diving', 'Island hopping', 'Bird watching', 'Relax on secluded beaches'],
+      kiteSchool: { name: 'Palafito Kiteschool', url: 'https://palafitokiteschool.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Los+Roques+Venezuela+Kite'
+    },
+    {
+      name: 'Islamorada, Florida, USA',
+      region: 'North America',
+      wind: 'Consistent (15-25 knots, NE, E)',
+      waterTemp: 'Warm (24-26°C / 75-79°F)',
+      airTemp: 'Warm (21-26°C / 70-79°F)',
+      conditions: 'Flat water, ideal for learning and freestyle. Part of the Florida Keys with beautiful scenery.',
+      otherActivities: ['Fishing (deep sea & flats)', 'Snorkeling & Diving (coral reefs)', 'Visit History of Diving Museum', 'Kayaking & Paddleboarding'],
+      kiteSchool: { name: 'Otherside Boardsports', url: 'https://othersideboardsports.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Islamorada+USA+Kite'
+    },
+    {
+      name: 'Neusiedler See, Austria',
+      region: 'Europe',
+      wind: 'Variable (10-20 knots)',
+      waterTemp: 'Cold (5-10°C / 41-50°F)',
+      airTemp: 'Cool (2-11°C / 36-52°F)',
+      conditions: 'Shallow lake, flat water. Suitable for beginners. Requires wetsuit.',
+      otherActivities: ['Bird watching', 'Cycling around the lake', 'Wine tasting', 'Explore local villages'],
+      kiteSchool: { name: 'Kiteschule Nordstrand', url: 'https://www.kiteschule-nordstrand.at/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Neusiedler+See+Austria+Kite'
+    },
+  ],
+  'April': [
+    {
+      name: 'Lo Stagnone, Sicily, Italy',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots, over 300 days/year)',
+      waterTemp: 'Mild (19-21°C / 66-70°F)',
+      airTemp: 'Warm (20-25°C / 68-77°F)',
+      conditions: 'Europe\'s largest flat-water lagoon, knee to waist deep. Excellent for all levels, especially beginners and freestylers.',
+      otherActivities: ['Wine tasting', 'Explore ancient ruins (e.g., Mothia)', 'Visit Marsala salt pans', 'Wakeboarding at nearby cable park'],
+      kiteSchool: { name: 'Flow Kite School Sicily', url: 'https://kiteschoolsicily.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Lo+Stagnone+Sicily+Kite'
+    },
+    {
+      name: 'Dakhla, Morocco',
+      region: 'Africa',
+      wind: 'Strong (18-30 knots, thermals)',
+      waterTemp: 'Cool (18-20°C / 64-68°F)',
+      airTemp: 'Warm (20-28°C / 68-82°F)',
+      conditions: 'Huge flat-water lagoon, ideal for all levels. Wave spots outside the lagoon. Very reliable wind.',
+      otherActivities: ['Visit Dragon Island', 'Relax in natural hot springs', 'Desert excursions', 'Oyster farm visits'],
+      kiteSchool: { name: 'Dakhla Evasion', url: 'https://www.dakhla-evasion.com/en/family-watersports-holidays/dakhla-kite-school/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Dakhla+Morocco+Kite'
+    },
+    {
+      name: 'Essaouira, Morocco',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots, side-onshore)',
+      waterTemp: 'Cool (18-20°C / 64-68°F)',
+      airTemp: 'Warm (20-25°C / 68-77°F)',
+      conditions: '4km sandy beach, good for beginners in shallow areas, long clean waves for intermediates. Culturally rich.',
+      otherActivities: ['Explore the Medina (UNESCO site)', 'Visit Skala de la Ville ramparts', 'Horse riding on the beach', 'Sample fresh seafood at the port'],
+      kiteSchool: { name: 'Bleukite Essaouira Morocco', url: 'https://www.bleukite.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Essaouira+Morocco+Kite'
+    },
+    {
+      name: 'Bonaire',
+      region: 'Caribbean',
+      wind: 'Consistent (15-25 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat water at Atlantis Beach. Renowned for consistent trade winds.',
+      otherActivities: ['World-class diving & snorkeling', 'Explore Washington Slagbaai National Park', 'Visit the Salt Pans and Slave Huts', 'Windsurfing at Lac Bay'],
+      kiteSchool: { name: 'Kiteboarding Bonaire', url: 'https://www.kiteboardingbonaire.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Bonaire+Kite'
+    },
+    {
+      name: 'Las Terrenas, Dominican Republic',
+      region: 'Caribbean',
+      wind: 'Consistent (12-24 knots, primary from east)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Huge expanses of shallow, flat water, perfect for learning and freestyle. Thermal winds can blow stronger than forecast.',
+      otherActivities: ['Explore El Limon Waterfall', 'Whale watching (seasonal)', 'Horse riding', 'Visit local markets'],
+      kiteSchool: { name: 'Kiteworld Las Terrenas', url: 'https://kitesurflasterrenas.com/kiteworld-kiteboarding-school-dominican-republic/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Las+Terrenas+DR+Kite'
+    },
+  ],
+  'May': [
+    {
+      name: 'Kos, Greece',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots, thermal)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (22-28°C / 72-82°F)',
+      conditions: 'Flat to chop, ideal for all levels, great community vibe. Good thermal winds.',
+      otherActivities: ['Explore Kos Old Town & Castle', 'Visit Asklepieion ancient ruins', 'Soak in thermal springs at Agios Fokas', 'Boat trips to nearby islands (e.g., Nisyros volcano)'],
+      kiteSchool: { name: 'Horizon Surfing Kos', url: 'https://www.unplug-kitesurf.com/destinations/kos' }, // Link to a directory
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Kos+Greece+Kite'
+    },
+    {
+      name: 'Fehmarn, Germany',
+      region: 'Europe',
+      wind: 'Variable (12-25 knots, various directions)',
+      waterTemp: 'Cold (14-17°C / 57-63°F)',
+      airTemp: 'Mild (15-20°C / 59-68°F)',
+      conditions: 'Large shallow areas, some wave action, deep water for foiling. Many spots for all wind directions.',
+      otherActivities: ['Cycling tours around the island', 'Visit Fehmarn Aquarium', 'Explore local lighthouses', 'SUP & Kayaking (fee-free for some camps)'],
+      kiteSchool: { name: 'Primesurf Fehmarn', url: 'https://primesurf.com/destinations/fehmarn/kite-and-wing-courses/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Fehmarn+Germany+Kite'
+    },
+    {
+      name: 'Kalpitiya, Sri Lanka',
+      region: 'Asia',
+      wind: 'Consistent (18-28 knots, SW monsoon)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Large flat-water lagoon, perfect for beginners and freestyle. Warm water all year.',
+      otherActivities: ['Dolphin & Whale Watching', 'Wilpattu National Park Safari', 'Kayaking', 'Visit Anuradhapura ancient city'],
+      kiteSchool: { name: 'De Silva Windresort', url: 'https://surfschool-srilanka.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kalpitiya+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Tarifa, Spain',
+      region: 'Europe',
+      wind: 'Strong (15-35 knots, Levante or Poniente)',
+      waterTemp: 'Mild (16-19°C / 61-66°F)',
+      airTemp: 'Mild (18-22°C / 64-72°F)',
+      conditions: 'Chop to large waves depending on wind direction. Suitable for intermediate to advanced riders.',
+      otherActivities: ['Explore Guzman castle', 'Visit Roman city of Baelo Claudia', 'Horse riding', 'Whale & Dolphin watching'],
+      kiteSchool: { name: 'Addict Kite School Tarifa', url: 'https://www.addictkiteschool.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Tarifa+Spain+Kite'
+    },
+    {
+      name: 'Sicily, Italy (Lo Stagnone)',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (20-23°C / 68-73°F)',
+      airTemp: 'Warm (22-28°C / 72-82°F)',
+      conditions: 'Vast shallow flat-water lagoon. Ideal for all levels. Very high wind reliability.',
+      otherActivities: ['Wine tasting', 'Explore ancient ruins (e.g., Mothia)', 'Visit Marsala salt pans', 'Wakeboarding at nearby cable park'],
+      kiteSchool: { name: 'Flow Kite School Sicily', url: 'https://kiteschoolsicily.com/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Lo+Stagnone+Sicily+Kite'
+    },
+  ],
+  'June': [
+    {
+      name: 'Lo Stagnone, Sicily, Italy',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (22-24°C / 72-75°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat-water lagoon, knee to waist deep. Ideal for all levels. Excellent wind statistics.',
+      otherActivities: ['Wine tasting', 'Explore ancient ruins (e.g., Mothia)', 'Visit Marsala salt pans', 'Wakeboarding at nearby cable park'],
+      kiteSchool: { name: 'Flow Kite School Sicily', url: 'https://kiteschoolsicily.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Lo+Stagnone+Sicily+Kite'
+    },
+    {
+      name: 'Kos, Greece',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (22-24°C / 72-75°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat to chop, consistent thermal winds. Top spot for solo travelers, families, and couples.',
+      otherActivities: ['Explore Kos Old Town & Castle', 'Visit Asklepieion ancient ruins', 'Soak in thermal springs at Agios Fokas', 'Boat trips to nearby islands'],
+      kiteSchool: { name: 'Horizon Surfing Kos', url: 'https://www.unplug-kitesurf.com/destinations/kos' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Kos+Greece+Kite'
+    },
+    {
+      name: 'Essaouira, Morocco',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots, side-onshore)',
+      waterTemp: 'Mild (19-21°C / 66-70°F)',
+      airTemp: 'Warm (22-28°C / 72-82°F)',
+      conditions: 'Sandy beach, good for beginners in shallow areas, long clean waves for intermediates. Culturally rich destination.',
+      otherActivities: ['Explore the Medina (UNESCO site)', 'Visit Skala de la Ville ramparts', 'Horse riding on the beach', 'Sample fresh seafood at the port'],
+      kiteSchool: { name: 'Bleukite Essaouira Morocco', url: 'https://www.bleukite.com/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Essaouira+Morocco+Kite'
+    },
+    {
+      name: 'Kalpitiya, Sri Lanka',
+      region: 'Asia',
+      wind: 'Consistent (18-28 knots, SW monsoon)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Large flat-water lagoon, perfect for beginners and freestyle. Warm water all year.',
+      otherActivities: ['Dolphin & Whale Watching', 'Wilpattu National Park Safari', 'Kayaking', 'Visit Anuradhapura ancient city'],
+      kiteSchool: { name: 'De Silva Windresort', url: 'https://surfschool-srilanka.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kalpitiya+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Dakhla, Morocco',
+      region: 'Africa',
+      wind: 'Strong (18-30 knots, thermals)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Huge flat-water lagoon, ideal for all levels. Consistent wind. Wave spots outside the lagoon.',
+      otherActivities: ['Visit Dragon Island', 'Relax in natural hot springs', 'Desert excursions', 'Oyster farm visits'],
+      kiteSchool: { name: 'Dakhla Evasion', url: 'https://www.dakhla-evasion.com/en/family-watersports-holidays/dakhla-kite-school/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Dakhla+Morocco+Kite'
+    },
+  ],
+  'July': [
+    {
+      name: 'Kalpitiya, Sri Lanka',
+      region: 'Asia',
+      wind: 'Consistent (18-28 knots, SW monsoon)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Large flat-water lagoon, perfect for beginners and freestyle. Warm water, ideal for long sessions.',
+      otherActivities: ['Dolphin & Whale Watching', 'Wilpattu National Park Safari', 'Kayaking', 'Visit Anuradhapura ancient city'],
+      kiteSchool: { name: 'De Silva Windresort', url: 'https://surfschool-srilanka.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kalpitiya+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Seahorse Bay, Egypt',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Large shallow-water area, stable wind, warm water. Great for all levels, comfortable even at low tide.',
+      otherActivities: ['Snorkeling & Diving', 'Horse riding on the beach', 'Desert safaris', 'Visit local markets'],
+      kiteSchool: { name: 'Kite School Egypt', url: 'https://www.kiteschoolegypt.com/en' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Seahorse+Bay+Egypt+Kite'
+    },
+    {
+      name: 'Dakhla, Morocco',
+      region: 'Africa',
+      wind: 'Strong (18-30 knots, thermals)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Huge flat-water lagoon, ideal for all levels. Consistent wind. Wave spots outside the lagoon.',
+      otherActivities: ['Visit Dragon Island', 'Relax in natural hot springs', 'Desert excursions', 'Oyster farm visits'],
+      kiteSchool: { name: 'Dakhla Evasion', url: 'https://www.dakhla-evasion.com/en/family-watersports-holidays/dakhla-kite-school/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Dakhla+Morocco+Kite'
+    },
+    {
+      name: 'Lo Stagnone, Sicily, Italy',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (24-26°C / 75-79°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Vast shallow flat-water lagoon. Ideal for all levels. High wind reliability.',
+      otherActivities: ['Wine tasting', 'Explore ancient ruins (e.g., Mothia)', 'Visit Marsala salt pans', 'Wakeboarding at nearby cable park'],
+      kiteSchool: { name: 'Flow Kite School Sicily', url: 'https://kiteschoolsicily.com/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Lo+Stagnone+Sicily+Kite'
+    },
+    {
+      name: 'Kos, Greece',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (24-26°C / 75-79°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Flat to chop, consistent thermal winds. Great for a relaxing yet exciting holiday.',
+      otherActivities: ['Explore Kos Old Town & Castle', 'Visit Asklepieion ancient ruins', 'Soak in thermal springs at Agios Fokas', 'Boat trips to nearby islands'],
+      kiteSchool: { name: 'Horizon Surfing Kos', url: 'https://www.unplug-kitesurf.com/destinations/kos' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kos+Greece+Kite'
+    },
+  ],
+  'August': [
+    {
+      name: 'Tatajuba, Brazil',
+      region: 'South America',
+      wind: 'Very Strong (99% wind coverage, constant side-onshore)',
+      waterTemp: 'Warm (28-30°C / 82-86°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Large shallow water, flat water areas, wave spot at river mouth. Ideal for all levels, bikini/boardshort kiting.',
+      otherActivities: ['Buggy tours to Jericoacoara', 'Horse riding on the beach', 'Explore local villages', 'Relax by natural lagoons'],
+      kiteSchool: { name: 'Kite Center Tatajuba', url: 'https://kitesurf-brazil.com/tatajuba' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Tatajuba+Brazil+Kite'
+    },
+    {
+      name: 'Turks & Caicos',
+      region: 'Caribbean',
+      wind: 'Strongest in summer (12-22 knots average, stable)',
+      waterTemp: 'Warm (28-29°C / 82-84°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Super stable winds, shallow turquoise waters, onshore to side-onshore. Ideal for all levels, especially beginners.',
+      otherActivities: ['Snorkeling & Diving in barrier reef', 'Visit Chalk Sound National Park', 'Conch Farm tours', 'Relax on Long Bay Beach'],
+      kiteSchool: { name: 'Kite Provo', url: 'https://kiteprovo.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Turks+and+Caicos+Kite'
+    },
+    {
+      name: 'Le Morne, Mauritius',
+      region: 'Africa/Indian Ocean',
+      wind: 'Consistent (15-25 knots, SE trade winds)',
+      waterTemp: 'Warm (25-27°C / 77-81°F)',
+      airTemp: 'Warm (24-28°C / 75-82°F)',
+      conditions: 'Flat water lagoon inside reef, world-class waves outside (Manawa, One Eye). Suitable for all levels, especially advanced wave riders.',
+      otherActivities: ['Catamaran cruises', 'Hiking Le Morne Brabant (UNESCO)', 'Safari wildlife encounters', 'Dolphins & Whale watching'],
+      kiteSchool: { name: 'Specialised Kiteboarding Mauritius', url: 'https://specialisedkiteboarding.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Le+Morne+Mauritius+Kite'
+    },
+    {
+      name: 'Kalpitiya, Sri Lanka',
+      region: 'Asia',
+      wind: 'Consistent (18-28 knots, SW monsoon)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Large flat-water lagoon, perfect for beginners and freestyle. Warm water, ideal for long sessions.',
+      otherActivities: ['Dolphin & Whale Watching', 'Wilpattu National Park Safari', 'Kayaking', 'Visit Anuradhapura ancient city'],
+      kiteSchool: { name: 'De Silva Windresort', url: 'https://surfschool-srilanka.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Kalpitiya+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Seahorse Bay, Egypt',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Large shallow-water area, stable wind, warm water. Great for all levels, comfortable even at low tide.',
+      otherActivities: ['Snorkeling & Diving', 'Horse riding on the beach', 'Desert safaris', 'Visit local markets'],
+      kiteSchool: { name: 'Kite School Egypt', url: 'https://www.kiteschoolegypt.com/en' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Seahorse+Bay+Egypt+Kite'
+    },
+  ],
+  'September': [
+    {
+      name: 'Tatajuba, Brazil',
+      region: 'South America',
+      wind: 'Very Strong (99% wind coverage, constant side-onshore)',
+      waterTemp: 'Warm (28-30°C / 82-86°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Continues to offer amazing flat water and wave conditions. Brazil\'s longest and best wind season.',
+      otherActivities: ['Buggy tours to Jericoacoara', 'Horse riding on the beach', 'Explore local villages', 'Relax by natural lagoons'],
+      kiteSchool: { name: 'Kite Center Tatajuba', url: 'https://kitesurf-brazil.com/tatajuba' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Tatajuba+Brazil+Kite'
+    },
+    {
+      name: 'Madagascar (Babaomby)',
+      region: 'Africa',
+      wind: 'Strong (18-28 knots, reliable trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Expansive shallow lagoons, diverse water conditions. Great for experienced kitesurfers seeking flat water and wave riding.',
+      otherActivities: ['Pirogue tours', 'Visit Tsingy de Bemaraha National Park', 'Explore Avenue of the Baobabs', 'Wildlife viewing (lemurs!)'],
+      kiteSchool: { name: 'Babaomby Island Lodge Kite School', url: 'https://www.babaomby.com/kitesurfing/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Madagascar+Kite'
+    },
+    {
+      name: 'Kappalady, Sri Lanka',
+      region: 'Asia',
+      wind: 'Consistent (15-25 knots, less gusty than Kalpitiya)',
+      waterTemp: 'Warm (27-30°C / 81-86°F)',
+      airTemp: 'Hot (28-33°C / 82-91°F)',
+      conditions: 'Small lagoon with warm, flat water, ideal for freestyle. Popular spot for the summer season without a boat.',
+      otherActivities: ['Dolphin & Whale Watching', 'Stand-Up Paddleboarding (SUP) & Kayaking', 'Horse Riding on the beach', 'Visit Anawilundawa Bird Sanctuary'],
+      kiteSchool: { name: 'Kitekuda Kite Resort', url: 'https://www.srilankakiteschool.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Kappalady+Sri+Lanka+Kite'
+    },
+    {
+      name: 'Essaouira, Morocco',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots, side-onshore)',
+      waterTemp: 'Mild (19-21°C / 66-70°F)',
+      airTemp: 'Warm (22-28°C / 72-82°F)',
+      conditions: 'Sandy beach, good for beginners in shallow areas, long clean waves for intermediates. Culturally rich destination.',
+      otherActivities: ['Explore the Medina (UNESCO site)', 'Visit Skala de la Ville ramparts', 'Horse riding on the beach', 'Sample fresh seafood at the port'],
+      kiteSchool: { name: 'Bleukite Essaouira Morocco', url: 'https://www.bleukite.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Essaouira+Morocco+Kite'
+    },
+    {
+      name: 'Dakhla, Morocco',
+      region: 'Africa',
+      wind: 'Strong (18-30 knots, thermals)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Huge flat-water lagoon, ideal for all levels. Consistent wind. Wave spots outside the lagoon.',
+      otherActivities: ['Visit Dragon Island', 'Relax in natural hot springs', 'Desert excursions', 'Oyster farm visits'],
+      kiteSchool: { name: 'Dakhla Evasion', url: 'https://www.dakhla-evasion.com/en/family-watersports-holidays/dakhla-kite-school/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Dakhla+Morocco+Kite'
+    },
+  ],
+  'October': [
+    {
+      name: 'Mauritius (Le Morne)',
+      region: 'Africa/Indian Ocean',
+      wind: 'Consistent (15-25 knots, SE trade winds)',
+      waterTemp: 'Warm (25-27°C / 77-81°F)',
+      airTemp: 'Warm (24-28°C / 75-82°F)',
+      conditions: 'Prime season for both flat water and world-class waves. High quality service and stunning location.',
+      otherActivities: ['Catamaran cruises', 'Hiking Le Morne Brabant (UNESCO)', 'Safari wildlife encounters', 'Dolphins & Whale watching'],
+      kiteSchool: { name: 'Specialised Kiteboarding Mauritius', url: 'https://specialisedkiteboarding.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Le+Morne+Mauritius+Kite'
+    },
+    {
+      name: 'Tarifa, Spain',
+      region: 'Europe',
+      wind: 'Strong (15-35 knots, Levante or Poniente)',
+      waterTemp: 'Mild (16-19°C / 61-66°F)',
+      airTemp: 'Mild (15-20°C / 59-68°F)',
+      conditions: 'Mid-season with good, consistent winds without the peak crowds. Suitable for experienced riders.',
+      otherActivities: ['Explore Guzman castle', 'Visit Roman city of Baelo Claudia', 'Horse riding', 'Whale & Dolphin watching'],
+      kiteSchool: { name: 'Addict Kite School Tarifa', url: 'https://www.addictkiteschool.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Tarifa+Spain+Kite'
+    },
+    {
+      name: 'Egypt (e.g., Seahorse Bay/Safaga/Hurghada)',
+      region: 'Africa',
+      wind: 'Consistent (15-25 knots)',
+      waterTemp: 'Warm (24-26°C / 75-79°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Great for kite safaris with strong, consistent winds at sea. Flat water lagoons near coast.',
+      otherActivities: ['Snorkeling & Diving in Red Sea', 'Boat trips to Giftun Islands', 'Visit Hurghada Marina', 'Quad biking in the desert'],
+      kiteSchool: { name: 'Kite School Egypt', url: 'https://www.kiteschoolegypt.com/en' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Egypt+Kite'
+    },
+    {
+      name: 'Sardinia, Italy (Porto Botte)',
+      region: 'Europe',
+      wind: 'Consistent (15-25 knots, thermal)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (20-25°C / 68-77°F)',
+      conditions: 'Shallow, flat water spot. Good for beginners and freestylers. Thermal winds often kick in.',
+      otherActivities: ['Explore ancient Nuraghe sites', 'Visit beautiful beaches (e.g., Chia)', 'Hiking & Cycling', 'Wine tasting'],
+      kiteSchool: { name: 'Kite Generation Sardinia', url: 'https://www.kitegeneration.com/kitesurfing-porto-botte-sardinia/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Sardinia+Italy+Kite'
+    },
+    {
+      name: 'Maui, Hawaii, USA',
+      region: 'North America',
+      wind: 'Strong (18-30 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'World-class wave spots (Sprecks), also flat water areas. Best for intermediate to advanced riders.',
+      otherActivities: ['Surf lessons', 'Road to Hana drive', 'Snorkeling at Molokini Crater', 'Visit Haleakala National Park'],
+      kiteSchool: { name: 'Aqua Sports Maui Kiteboarding School', url: 'https://mauikiteboardinglessons.com/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Maui+Hawaii+Kite'
+    },
+  ],
+  'November': [
+    {
+      name: 'Cumbuco, Brazil',
+      region: 'South America',
+      wind: 'Consistent (18-30 knots)',
+      waterTemp: 'Warm (28-30°C / 82-86°F)',
+      airTemp: 'Hot (30-35°C / 86-95°F)',
+      conditions: 'Dream destination with consistent winds, warm waters, and lagoons for freestyle and flat-water kiting.',
+      otherActivities: ['Buggy tours in sand dunes', 'Sandboarding', 'Visit Lagoa de Cauipe', 'Explore Fortaleza city'],
+      kiteSchool: { name: 'Windtown Kite School Cumbuco', url: 'https://www.windtown-brazil.com/kitesurf/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Cumbuco+Brazil+Kite'
+    },
+    {
+      name: 'Boracay, Philippines',
+      region: 'Asia',
+      wind: 'Consistent (15-25 knots, NE monsoon starts)',
+      waterTemp: 'Warm (27-29°C / 81-84°F)',
+      airTemp: 'Warm (28-29°C / 82-84°F)',
+      conditions: 'Flat water, great for learning and freestyle. The prime season starts.',
+      otherActivities: ['Island hopping', 'Snorkeling & Diving', 'Paddleboarding', 'Visit White Beach & Puka Shell Beach'],
+      kiteSchool: { name: 'Isla Kitesurfing', url: 'https://www.unplug-kitesurf.com/destinations/boracay' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=Boracay+PH+Kite'
+    },
+    {
+      name: 'Punta Cana, Dominican Republic',
+      region: 'Caribbean',
+      wind: 'Consistent (12-22 knots)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (26-30°C / 79-86°F)',
+      conditions: 'Warm turquoise waters, wide sandy beaches. Mix of flat to small waves. Ideal for beginners and experienced.',
+      otherActivities: ['Golfing', 'Explore Hoyo Azul & cenotes', 'Zip-lining & Adventure Parks', 'Monkeyland tours'],
+      kiteSchool: { name: 'Kite Club Punta Cana', url: 'https://www.kiteclubpuntacana.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Punta+Cana+DR+Kite'
+    },
+    {
+      name: 'Cape Town, South Africa',
+      region: 'Africa',
+      wind: 'Strong (20-35 knots, "Cape Doctor" picks up)',
+      waterTemp: 'Cold (14-18°C / 57-64°F, wetsuit needed)',
+      airTemp: 'Warm (20-28°C / 68-82°F)',
+      conditions: 'Choppy to waves, strong winds. Suitable for intermediate to advanced kiters. Season is kicking off.',
+      otherActivities: ['Table Mountain Cableway', 'Robben Island Tour', 'Visit Boulders Beach (penguins)', 'Wine tasting in Stellenbosch/Franschhoek'],
+      kiteSchool: { name: 'Kitekahunas', url: 'https://www.kitekahunas.com/' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Cape+Town+SA+Kite'
+    },
+    {
+      name: 'Cuba (e.g., Santa Lucia, Cayo Guillermo)',
+      region: 'Caribbean',
+      wind: 'Consistent (15-25 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Flat water close to shore, some choppy waves further out. Crystal blue water. Ideal season starts.',
+      otherActivities: ['Explore historic Havana', 'Visit local cigar factories', 'Experience Cuban culture and music', 'Snorkeling & diving'],
+      kiteSchool: { name: 'Kite-Cuba', url: 'https://www.kite-cuba.com/' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Cuba+Kite'
+    },
+  ],
+  'December': [
+    {
+      name: 'Punta Chame, Panama',
+      region: 'Central America',
+      wind: 'Consistent (15-25 knots, trade wind starts)',
+      waterTemp: 'Warm (28-30°C / 82-86°F)',
+      airTemp: 'Warm (28-32°C / 82-90°F)',
+      conditions: 'Multiple flat water and small wave spots depending on tide and wind. Steady trade winds.',
+      otherActivities: ['Explore Panama Canal', 'Visit Panama City\'s Casco Viejo', 'Bird watching', 'Fishing tours'],
+      kiteSchool: { name: 'Mataz Escapes Kite School', url: 'https://www.mataz-escapes.com/panama-kiteboarding-school' },
+      image: 'https://placehold.co/400x250/ADADC1/FFFFFF?text=Punta+Chame+Panama+Kite'
+    },
+    {
+      name: 'Cuba (e.g., Varadero, Cayo Guillermo)',
+      region: 'Caribbean',
+      wind: 'Consistent (15-25 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-30°C / 77-86°F)',
+      conditions: 'Clear turquoise waters, wide sandy beaches. Mix of flat to choppy conditions. Ideal for freestyle, freeride, and beginners.',
+      otherActivities: ['Explore historic Havana', 'Visit local cigar factories', 'Experience Cuban culture and music', 'Snorkeling & diving'],
+      kiteSchool: { name: 'Kite-Cuba', url: 'https://www.kite-cuba.com/' },
+      image: 'https://placehold.co/400x250/A3AD8C/FFFFFF?text=Cuba+Kite'
+    },
+    {
+      name: 'San Salvador, Bahamas',
+      region: 'Caribbean',
+      wind: 'Strong (18-30 knots, trade winds)',
+      waterTemp: 'Warm (26-28°C / 79-82°F)',
+      airTemp: 'Warm (25-29°C / 77-84°F)',
+      conditions: 'Windiest and most extreme island in the Bahamas. Ideal for experienced kitesurfers.',
+      otherActivities: ['Diving & Snorkeling (reefs, shipwrecks)', 'Explore historic Columbus Landfall Park', 'Fishing charters', 'Relax on secluded beaches'],
+      kiteSchool: { name: 'Bahamas Kitesurfing', url: 'https://www.bahamaskitesurfing.com/' },
+      image: 'https://placehold.co/400x250/A3C1AD/FFFFFF?text=San+Salvador+Bahamas+Kite'
+    },
+    {
+      name: 'Mauritius (Le Morne)',
+      region: 'Africa/Indian Ocean',
+      wind: 'Consistent (15-25 knots, SE trade winds)',
+      waterTemp: 'Warm (25-27°C / 77-81°F)',
+      airTemp: 'Warm (24-28°C / 75-82°F)',
+      conditions: 'Flat water lagoon inside reef, world-class waves outside. Suitable for all levels.',
+      otherActivities: ['Catamaran cruises', 'Hiking Le Morne Brabant (UNESCO)', 'Safari wildlife encounters', 'Dolphins & Whale watching'],
+      kiteSchool: { name: 'Specialised Kiteboarding Mauritius', url: 'https://specialisedkiteboarding.com/' },
+      image: 'https://placehold.co/400x250/C1A3AD/FFFFFF?text=Le+Morne+Mauritius+Kite'
+    },
+    {
+      name: 'Cape Verde (Sal)',
+      region: 'Africa',
+      wind: 'Strong (18-30 knots)',
+      waterTemp: 'Mild (20-22°C / 68-72°F)',
+      airTemp: 'Warm (20-25°C / 68-77°F)',
+      conditions: 'Good for waves, consistent. Ideal winter escape for European kiters.',
+      otherActivities: ['Explore Santa Maria town', 'Visit the Salinas de Pedra de Lume (salt flats)', 'Scuba diving', 'Quad biking'],
+      kiteSchool: { name: 'Surf Activity Cape Verde', url: 'https://www.surfactivity.com/kitesurf-cape-verde' },
+      image: 'https://placehold.co/400x250/8CADA3/FFFFFF?text=Sal+Cape+Verde+Kite'
+    },
+  ],
+};
+
+function App() {
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [locations, setLocations] = useState([]);
+  const [error, setError] = useState('');
+  const [headerImage, setHeaderImage] = useState('');
+
+  // Get current month on initial load
+  useEffect(() => {
+    const currentMonthIndex = new Date().getMonth(); // 0-11
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    setSelectedMonth(months[currentMonthIndex]);
+  }, []);
+
+  // Update locations and header image when selectedMonth changes
+  useEffect(() => {
+    if (selectedMonth && kiteboardingData[selectedMonth]) {
+      setLocations(kiteboardingData[selectedMonth]);
+      if (kiteboardingData[selectedMonth].length > 0) {
+        setHeaderImage(kiteboardingData[selectedMonth][0].image); // Use the image from the first location for the header
+      } else {
+        setHeaderImage(''); // No image if no locations
+      }
+      setError('');
+    } else if (selectedMonth) {
+      setLocations([]);
+      setHeaderImage('');
+      setError('No data available for this month. Please select another month.');
+    }
+  }, [selectedMonth]);
+
+  const handleMonthChange = (event) => {
+    setSelectedMonth(event.target.value);
+  };
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 p-4 font-inter text-gray-800">
+      <div className="container mx-auto p-6 bg-white rounded-xl shadow-lg">
+        {headerImage && (
+          <div className="mb-8 rounded-xl overflow-hidden shadow-md">
+            <img
+              src={headerImage}
+              alt="Kiteboarding Destination"
+              className="w-full h-64 object-cover object-center"
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/800x400/87CEEB/FFFFFF?text=Kiteboarding+Paradise'; }}
+            />
+          </div>
+        )}
+
+        <h1 className="text-4xl md:text-5xl font-extrabold text-center text-blue-800 mb-8 tracking-tight">
+          <span className="inline-block transform -rotate-3 mr-2">🏄‍♂️</span>
+          Kite location guide
+          <span className="inline-block transform rotate-3 ml-2">💨</span>
+        </h1>
+
+        <p className="text-center text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+          Discover the best kiteboarding spots around the globe for every month of the year.
+          Find your perfect wind, water, and wave conditions!
+        </p>
+
+        <div className="mb-12 flex flex-col items-center">
+          <label htmlFor="month-select" className="text-xl font-semibold text-gray-700 mb-4">
+            Select a Month:
+          </label>
+          <div className="relative inline-block w-full max-w-sm">
+            <select
+              id="month-select"
+              className="block w-full bg-white border border-blue-400 rounded-md py-3 px-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg appearance-none transition-all duration-300 ease-in-out"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+            >
+              <option value="" disabled>Choose a month</option>
+              {months.map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 6.096 6.924 4.682 8.338z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative text-center mb-8" role="alert">
+            <strong className="font-bold">Oops! </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
+        {locations.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {locations.map((location, index) => (
+              <div
+                key={index}
+                className="bg-white border border-blue-300 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out overflow-hidden"
+              >
+                <img
+                  src={location.image}
+                  alt={`Kiteboarding at ${location.name}`}
+                  className="w-full h-48 object-cover rounded-t-xl"
+                  onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/400x250/87CEEB/FFFFFF?text=${location.name.split(',')[0].replace(/\s/g, '+')}`; }}
+                />
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-blue-700 mb-2">{location.name}</h3>
+                  <p className="text-md text-gray-600 mb-4">
+                    <span className="font-semibold">Region:</span> {location.region}
+                  </p>
+                  <ul className="text-gray-700 space-y-2">
+                    <li><span className="font-semibold">💨 Wind:</span> {location.wind}</li>
+                    <li><span className="font-semibold">💧 Water Temp:</span> {location.waterTemp}</li>
+                    <li><span className="font-semibold">☀️ Air Temp:</span> {location.airTemp}</li>
+                    <li><span className="font-semibold">🌊 Conditions:</span> {location.conditions}</li>
+                    {location.otherActivities && location.otherActivities.length > 0 && (
+                      <li><span className="font-semibold">🎉 Other Activities:</span> {location.otherActivities.join(', ')}</li>
+                    )}
+                    {location.kiteSchool && (
+                      <li>
+                        <span className="font-semibold">🏫 Kite School:</span>{' '}
+                        <a href={location.kiteSchool.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                          {location.kiteSchool.name}
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-xl text-gray-500 py-10">
+            {selectedMonth ? 'Loading data or no locations found for this month.' : 'Please select a month to view kiteboarding locations.'}
+          </div>
+        )}
+
+        <div className="mt-12 text-center text-gray-500 text-sm">
+          <p>&copy; 2025 Kite location guide. Data compiled from various kiteboarding resources. Always check local forecasts before you go!</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
